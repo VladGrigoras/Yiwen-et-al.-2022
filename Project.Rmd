@@ -1,0 +1,135 @@
+---
+title: "Yiwen 2022"
+author: "Vlad Grigoras"
+date: "2022-08-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(ggplot2)
+library(ggExtra)
+library(Hmisc)
+library(grid)
+```
+
+```{r}
+data1 <- read_excel("STUDY1DATA.xlsx")
+data2 <- read_excel("STUDY2DATA.xlsx")
+data3 <- read_excel("Data3.xlsx")
+```
+
+```{r}
+#R does not like variable names containing spaces
+names(data3) <- str_replace_all(names(data3), c(" " = ""))
+```
+
+```{r}
+#Figure 1: General Sensitivity ~ group * article (DATA = EXP1)
+
+ggplot(data = data1, aes(x = Article, y = Sensitivity_General, fill = Group))+
+  stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
+  stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
+  scale_fill_manual(values = c("#000000", "#ffffff"))+
+  labs(x = "Article", y = "Discernment for General News")+
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15))
+```
+
+```{r}
+#Figure 2: Sensitivity_All ~ CRT (DATA = EXP1)
+
+ggplot(data1, aes(CRT, Sensitivity_All, color = Group))+
+  geom_point(aes(fill = Group), color = "black", pch = 21)+
+  geom_smooth(method = "lm", se = FALSE)+
+  scale_fill_manual(values = c("#000000", "#ffffff"))+
+  scale_color_manual(values = c("#000000", "gray"))+
+  labs(x = "CRT", y = "Discernment for All News")+
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15))+
+  xlim(0.1,1)
+```
+
+```{r}
+#Figure 3: Sensitvity_General ~ Group * Artice (DATA = EXP2)
+
+ggplot(data = data2, aes(x = Article, y = Sensitivity_General, fill = Group))+
+  stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
+  stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
+  scale_fill_manual(values = c("#000000", "#ffffff"))+
+  labs(x = "Article", y = "Discernment for General News")+
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15))
+```
+
+```{r}
+#Figure 4: Discernment ~ CRT
+
+# removing c, due to the presence of only 2 data points
+data3 <- data3 %>%
+  filter(TorC == "t") 
+``` 
+ 
+```{r}
+#change factor type to numeric from char (to allow for regression line plotting)
+data3$CriticalLevel <- as.numeric(data3$CriticalLevel)
+```
+ 
+ 
+```{r}
+#Only treatment group
+ggplot(data3, aes(CriticalLevel, Discernment_All, color = TorC))+
+  geom_jitter(aes(fill  = TorC), color = "Black")+
+  geom_smooth(method = 'lm', se = FALSE, aes(fill = TorC)) +
+  scale_color_manual(values = c("black"))+
+  labs(x = "Critical Level", y = "Discernment for All News")+
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15))+
+  theme(legend.position="none")
+```
+
+```{r}
+#Figure 5: Sensitivity_General ~ Party * Article * Group
+data2 %>%
+  filter(Party == 'Democrat' | Party == 'Republican' | Party == 'Independent') %>%  
+  ggplot(aes(x = Article, y = Sensitivity_General, fill = Group))+
+    facet_wrap(~Party)+
+    stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
+    stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
+    scale_fill_manual(values = c("#000000", "#ffffff"))+
+    labs(x = "Article", y = "Discernment for General News")+
+    theme_minimal()+
+    theme(axis.title = element_text(size = 15), panel.spacing = unit(2, "lines"))
+```
+
+```{r}
+#Figure 1 Violin Plots 
+
+ggplot(data = data1, aes(x = Article, y = Sensitivity_General, fill = Group))+
+  geom_violin()+
+  stat_summary(fun = mean, geom = "point", color = "black", position = position_dodge(width = 0.95))+
+  stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "black", position = position_dodge(width = 0.95), width = 0.3) +
+  scale_fill_manual(values = c("gray", "#ffffff"))+
+  labs(x = "Article", y = "Discernment for General News")+
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15))
+```
+
+```{r}
+#Figure 3 Violin Plots
+
+ggplot(data = data2, aes(x = Article, y = Sensitivity_General, fill = Group))+
+  geom_violin()+
+  stat_summary(fun = mean, geom = "point", color = "black", position = position_dodge(width = 0.95))+
+  stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "black", position = position_dodge(width = 0.95), width = 0.3) +
+  scale_fill_manual(values = c("gray", "#ffffff"))+
+  labs(x = "Article", y = "Discernment for General News")+
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15))
+```

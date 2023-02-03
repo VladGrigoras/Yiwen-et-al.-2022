@@ -23,6 +23,8 @@ library(grid)
 data1 <- read_excel("STUDY1DATA.xlsx")
 data2 <- read_excel("STUDY2DATA.xlsx")
 data3 <- read_excel("Data3.xlsx")
+
+data1$Group[data1$Group == "General"] <- "Control"
 ```
 
 ```{r}
@@ -37,22 +39,32 @@ ggplot(data = data1, aes(x = Article, y = Sensitivity_General, fill = Group))+
   stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
   stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
   scale_fill_manual(values = c("#000000", "#ffffff"))+
-  labs(x = "Article", y = "Discernment for General News")+
+  labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
   theme_minimal()+
-  theme(axis.title = element_text(size = 15))
+  theme(axis.title = element_text(size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+  )
 ```
 
 ```{r}
 #Figure 2: Sensitivity_All ~ CRT (DATA = EXP1)
 
 ggplot(data1, aes(CRT, Sensitivity_All, color = Group))+
-  geom_point(aes(fill = Group), color = "black", pch = 21)+
+  geom_jitter(aes(fill = Group), color = "black", pch = 21)+
   geom_smooth(method = "lm", se = FALSE)+
   scale_fill_manual(values = c("#000000", "#ffffff"))+
   scale_color_manual(values = c("#000000", "gray"))+
-  labs(x = "CRT", y = "Discernment for All News")+
+  labs(x = "CRT", y = "Discernment for All News", fill = "Condition", color = "Condition")+
   theme_minimal()+
-  theme(axis.title = element_text(size = 15))+
+  theme(axis.title = element_text(size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+  )+
   xlim(0.1,1)
 ```
 
@@ -63,9 +75,14 @@ ggplot(data = data2, aes(x = Article, y = Sensitivity_General, fill = Group))+
   stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
   stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
   scale_fill_manual(values = c("#000000", "#ffffff"))+
-  labs(x = "Article", y = "Discernment for General News")+
+  labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
   theme_minimal()+
-  theme(axis.title = element_text(size = 15))
+  theme(axis.title = element_text(size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+  )
 ```
 
 ```{r}
@@ -90,7 +107,12 @@ ggplot(data3, aes(CriticalLevel, Discernment_All, color = TorC))+
   scale_color_manual(values = c("black"))+
   labs(x = "Critical Level", y = "Discernment for All News")+
   theme_minimal()+
-  theme(axis.title = element_text(size = 15))+
+  theme(axis.title = element_text(size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+  )+
   theme(legend.position="none")
 ```
 
@@ -103,9 +125,14 @@ data2 %>%
     stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
     stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
     scale_fill_manual(values = c("#000000", "#ffffff"))+
-    labs(x = "Article", y = "Discernment for General News")+
+    labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
     theme_minimal()+
-    theme(axis.title = element_text(size = 15), panel.spacing = unit(2, "lines"))
+    theme(axis.title = element_text(size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+    )
 ```
 
 ```{r}

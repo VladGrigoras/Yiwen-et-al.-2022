@@ -17,6 +17,10 @@ library(ggplot2)
 library(ggExtra)
 library(Hmisc)
 library(grid)
+library(ggsignif)
+
+library(ggpubr)
+library(rstatix)
 ```
 
 ```{r}
@@ -34,6 +38,14 @@ names(data3) <- str_replace_all(names(data3), c(" " = ""))
 
 ```{r}
 #Figure 1: General Sensitivity ~ group * article (DATA = EXP1)
+
+stat.test <- data1 %>%
+  group_by(Article) %>%
+  t_test(Sensitivity_General ~ Group) %>%
+  adjust_pvalue(method = "bonferroni") %>%
+  add_significance("p.adj")
+stat.test
+
 
 ggplot(data = data1, aes(x = Article, y = Sensitivity_General, fill = Group))+
   stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
@@ -77,6 +89,7 @@ ggplot(data = data2, aes(x = Article, y = Sensitivity_General, fill = Group))+
   scale_fill_manual(values = c("#000000", "#ffffff"))+
   labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
   theme_minimal()+
+  geom_signif()+
   theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -127,12 +140,14 @@ data2 %>%
     scale_fill_manual(values = c("#000000", "#ffffff"))+
     labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
     theme_minimal()+
+    geom_signif()+
     theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
     )
+
 ```
 
 ```{r}

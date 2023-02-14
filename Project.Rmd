@@ -18,7 +18,7 @@ library(ggExtra)
 library(Hmisc)
 library(grid)
 library(ggsignif)
-
+library(Cairo)
 library(ggpubr)
 library(rstatix)
 ```
@@ -39,63 +39,68 @@ names(data3) <- str_replace_all(names(data3), c(" " = ""))
 ```{r}
 #Figure 1: General Sensitivity ~ group * article (DATA = EXP1)
 
-stat.test <- data1 %>%
-  group_by(Article) %>%
-  t_test(Sensitivity_General ~ Group) %>%
-  adjust_pvalue(method = "bonferroni") %>%
-  add_significance("p.adj")
-stat.test
-
-
+png(file = "fig1.png",width=6, height=3.5, units="in", res=1500) 
 ggplot(data = data1, aes(x = Article, y = Sensitivity_General, fill = Group))+
   stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
   stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
-  scale_fill_manual(values = c("#000000", "#ffffff"))+
+  scale_fill_manual(values = c("#ffffff", "#000000"))+
   labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
-  theme_minimal()+
+  #stat_compare_means(aes(group = Group), method = "anova", label = "p.signif", label.y = 0.35)+ 
   theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        axis.line = element_line(colour = "black"),
+        axis.line = element_line(colour = "black")
   )
+dev.off()
+
+#ggsave("fig1.png", bg = "white")
 ```
 
 ```{r}
 #Figure 2: Sensitivity_All ~ CRT (DATA = EXP1)
+#CairoPDF(file = "fig2.pdf", width = 6, height = 3)
 
+png(file = "fig2.png",width=6, height=3.5, units="in", res=1500) 
 ggplot(data1, aes(CRT, Sensitivity_All, color = Group))+
   geom_jitter(aes(fill = Group), color = "black", pch = 21)+
   geom_smooth(method = "lm", se = FALSE)+
-  scale_fill_manual(values = c("#000000", "#ffffff"))+
-  scale_color_manual(values = c("#000000", "gray"))+
+  scale_fill_manual(values = c("#ffffff", "#000000"))+
+  scale_color_manual(values = c("gray", "#000000"))+
   labs(x = "CRT", y = "Discernment for All News", fill = "Condition", color = "Condition")+
+  stat_cor(aes(x = CRT, y = Sensitivity_All),method = "spearman", p.accuracy = 0.05)+
   theme_minimal()+
   theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
   )+
   xlim(0.1,1)
+
+dev.off ()
+#ggsave("fig2.png", bg = "white")
 ```
 
 ```{r}
 #Figure 3: Sensitvity_General ~ Group * Artice (DATA = EXP2)
 
+png(file = "fig3.png",width=6, height=3.5, units="in", res=1500) 
 ggplot(data = data2, aes(x = Article, y = Sensitivity_General, fill = Group))+
   stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
   stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
-  scale_fill_manual(values = c("#000000", "#ffffff"))+
+  scale_fill_manual(values = c("#ffffff", "#000000"))+
   labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
   theme_minimal()+
-  geom_signif()+
+  #stat_compare_means(aes(group = Group), method = "anova", label = "p.signif", label.y = 0.40)+ 
   theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
   )
+dev.off()
+
+#ggsave("fig3.png", bg = "white")
 ```
 
 ```{r}
@@ -114,11 +119,14 @@ data3$CriticalLevel <- as.numeric(data3$CriticalLevel)
  
 ```{r}
 #Only treatment group
+
+png(file = "fig4.png",width=6, height=3.5, units="in", res=1500) 
 ggplot(data3, aes(CriticalLevel, Discernment_All, color = TorC))+
   geom_jitter(aes(fill  = TorC), color = "Black")+
   geom_smooth(method = 'lm', se = FALSE, aes(fill = TorC)) +
   scale_color_manual(values = c("black"))+
   labs(x = "Critical Level", y = "Discernment for All News")+
+  stat_cor(method = "spearman", p.accuracy = 0.001)+
   theme_minimal()+
   theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
@@ -127,27 +135,34 @@ ggplot(data3, aes(CriticalLevel, Discernment_All, color = TorC))+
         axis.line = element_line(colour = "black"),
   )+
   theme(legend.position="none")
+dev.off()
+?stat_cor()
+#ggsave("fig4.png", bg = "white")
 ```
 
 ```{r}
 #Figure 5: Sensitivity_General ~ Party * Article * Group
+
+png(file = "fig5.png",width=6, height=3.5, units="in", res=1500) 
 data2 %>%
   filter(Party == 'Democrat' | Party == 'Republican' | Party == 'Independent') %>%  
   ggplot(aes(x = Article, y = Sensitivity_General, fill = Group))+
     facet_wrap(~Party)+
     stat_summary(fun.data=mean_sdl, geom="bar", color = "black", position = position_dodge(width = 0.95))+
     stat_summary(fun.data=mean_cl_boot, geom = "errorbar", color = "gray", position = position_dodge(width = 0.95), width = 0.3)+
-    scale_fill_manual(values = c("#000000", "#ffffff"))+
+    scale_fill_manual(values = c("#ffffff", "#000000"))+
     labs(x = "Article", y = "Discernment for General News", fill = "Condition")+
     theme_minimal()+
-    geom_signif()+
+    #stat_compare_means(aes(group = Group), method = "anova", label = "p.signif", label.y = 0.45)+ 
     theme(axis.title = element_text(size = 15),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
     )
+dev.off()
 
+#ggsave("fig5.png", bg = "white")
 ```
 
 ```{r}
